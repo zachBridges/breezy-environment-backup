@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# TODO run this as a cronjob
 # TODO use a single function or class for logging
 # TODO test if I can reinstall everything with a single function invokation!
     # ? _Should_ I reinstall via what's backed up out of here? 
@@ -14,29 +15,44 @@ set -euo pipefail # ZB explain whats happening here
 # set -x # tells Bash to print out the statements 
        # as they are being executed. 
 
-
+dropboxBackupFolder="$HOME/Dropbox/dev/environment-backup"
 
 main () {
     echo "Backup stuff!"
+    backupGitConfig
     backupZshrc
     backupBrewPackageList
 }
 
 backupZshrc () {
-    if [ ! -n ~/.zshrc ]; then
+    if [ ! -n $HOME/.zshrc ]; then
         echo ".zshrc missing"
     fi
-    echo "Copying .zshrc"
-    cp ~/.zshrc ~/Dropbox/dev/environment-backup/.zshrc
+    cp -v $HOME/.zshrc $dropboxBackupFolder
 }
 
 backupBrewPackageList () {
     # jidoka step for if no brew installed
-    echo "Make a Brewfile"
+    if ! command -v brew &> /dev/null; then
+        echo "homebrew could not be found!"
+        exit
+    fi
+
     # delete local Brewfile if it exists
-    brew bundle dump
-    echo "Copying Brewfile"
-    mv -fv ./Brewfile ~/Dropbox/dev/environment-backup/Brewfile 
+    if [ -f ./Brewfile ]; then
+        rm ./Brewfile
+    fi
+    echo "Making a Brewfile"
+    brew bundle dump &> /dev/null
+    mv -fv ./Brewfile $dropboxBackupFolder
+}
+
+backupGitConfig () {
+    if [ ! -f $HOME/.gitconfig ]; then 
+        echo "No ~/.gitconfig found. RIP!"
+        exit
+    fi
+    cp -v $HOME/.gitconfig $dropboxBackupFolder
 }
 
 main
