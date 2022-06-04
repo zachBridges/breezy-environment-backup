@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# TODO use a single function or class for logging
+# TODO test if I can reinstall everything with a single function invokation!
+    # ? _Should_ I reinstall via what's backed up out of here? 
+    # Probably not since workstation is here for a lot of this. 
+    # But, it's nice to know what I had installed _outside_ of workstation
+
+set -euo pipefail # ZB explain whats happening here
+
+# why did adam say its better to make a script executable (without the .sh extension)
+
+
+# set -x # tells Bash to print out the statements 
+       # as they are being executed. 
+
+
+
+main () {
+    echo "Backup stuff!"
+    backupZshrc
+    backupBrewPackageList
+}
+
+backupZshrc () {
+    if [ ! -n ~/.zshrc ]; then
+        echo ".zshrc missing"
+    fi
+    echo "Copying .zshrc"
+    cp ~/.zshrc ~/Dropbox/dev/environment-backup/.zshrc
+}
+
+backupBrewPackageList () {
+    # jidoka step for if no brew installed
+    echo "Make a Brewfile"
+    # delete local Brewfile if it exists
+    brew bundle dump
+    echo "Copying Brewfile"
+    mv -fv ./Brewfile ~/Dropbox/dev/environment-backup/Brewfile 
+}
+
+main
